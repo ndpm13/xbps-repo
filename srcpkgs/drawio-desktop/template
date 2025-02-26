@@ -9,7 +9,7 @@ maintainer="ndpm13 <ndpm13@ch-naseem.com>"
 license="Apache-2.0"
 homepage="https://www.diagrams.net/"
 distfiles="https://github.com/jgraph/drawio-desktop/releases/download/v${version}/drawio-amd64-${version}.deb"
-checksum=878dbd9aad84e2066ef1292a610fc762b33f1a85bc4e5e00ebe31d4fecbfc20b
+checksum=87157caefae8a28561c95b6638a948e1dd6b96c89eecf6928fbde22d9829d99e
 nostrip=yes
 
 do_extract() {
