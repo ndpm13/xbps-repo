@@ -20,7 +20,8 @@ jobs:
   build-packages:
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/void-linux/void-buildroot-glibc:latest
+      image: ghcr.io/void-linux/void-glibc-full:20250227R1
+      options: --privileged
 
     steps:
       - name: Setup environment
@@ -31,13 +32,14 @@ jobs:
           sed -i 's|repo-default|repo-ci|g' /etc/xbps.d/*-repository-*.conf
           xbps-install -Syu xbps
           xbps-install -Syu
-          xbps-install -y tar curl openssh unzip git jq github-cli
+          xbps-install -y sudo tar curl openssh unzip git jq github-cli shadow
+          useradd -G xbuilder -M builder
 
       - name: Checkout repositories
         uses: actions/checkout@v4
         with:
           repository: void-linux/void-packages
-          path: void-packages
+          path: /__w/xbps-repo/xbps-repo/void-packages
 
       - name: Checkout custom packages
         uses: actions/checkout@v4
@@ -77,19 +79,22 @@ jobs:
       - name: Setup and build packages
         run: |
           # Setup void-packages
-          cp -r custom-packages/srcpkgs/* void-packages/srcpkgs/
-          cd void-packages
+          cp -r custom-packages/srcpkgs/* /__w/xbps-repo/xbps-repo/void-packages/srcpkgs/
+          cd /__w/xbps-repo/xbps-repo/void-packages
+          chown -R builder:builder . &&
+          ls -lah
           ln -s "$(pwd)" /hostrepo
-          ./common/travis/set_mirror.sh
-          ./common/travis/prepare.sh
-          ./common/travis/fetch-xtools.sh
+          ls -lah common/travis
+          sudo -Eu builder /__w/xbps-repo/xbps-repo/void-packages/common/travis/set_mirror.sh &&
+          sudo -Eu builder /__w/xbps-repo/xbps-repo/void-packages/common/travis/prepare.sh &&
+          /__w/xbps-repo/xbps-repo/void-packages/common/travis/fetch-xtools.sh
 
           # Build packages
           mkdir -p ~/packages
           IFS=',' read -ra PKGS <<< "${PACKAGES}"
           for pkg in "${PKGS[@]}"; do
             pkg_trim=$(echo "$pkg" | xargs)
-            ./xbps-src -j$(nproc) -s -H ~/hostdir pkg "$pkg_trim"
+            sudo -Eu builder ./xbps-src -j$(nproc) -s -H ~/hostdir pkg "$pkg_trim"
             cp ~/hostdir/binpkgs/"$pkg_trim"*.xbps ~/packages/
           done
 
