@@ -1,5 +1,8 @@
 # Custom XBPS Repository
 
+> [!WARNING]
+> This repository is migrating to [noid-linux/xbps-repo](https://github.com/noid-linux/xbps-repo). Please update your references and repository configurations accordingly.
+
 [![Build Packages](https://github.com/noid-linux/xbps-repo/actions/workflows/build-packages.yml/badge.svg)](https://github.com/noid-linux/xbps-repo/actions/workflows/build-packages.yml)
 
 This repository contains custom XBPS packages.
